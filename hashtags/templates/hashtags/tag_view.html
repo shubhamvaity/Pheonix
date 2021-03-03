@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+<style>
+#tweet-container {
+
+}
+</style>
+
+{% block script %}
+<script>
+$(document).ready(function(){
+  loadTweetContainer("tweet-container")
+});
+</script>
+{% endblock script %}
+
+
+
+{% block content %}
+
+   
+    <div class='row'>
+        <div class='col-sm-12'>
+               {% if request.GET.q %}
+               <h2> <i class="fa fa-search"></i>&nbsp;Results for {{ request.GET.q }}</h2>
+                <hr/>
+               {% endif %}
+        </div>
+        <div class='col-sm-8 col-sm-offset-2'>
+          <div class="card" data-background-color="blue">
+                  <center>
+                  <h3 class="category-social">
+                    <i class="fa fa-bullhorn"></i>&nbsp;&nbsp;TWEETS WITH&nbsp;#{{obj.tag}}
+                  </h3>  
+                </center>
+              </div>
+          <hr/>
+
+          <div id='tweet-container' data-url='/api/tags/{{ obj.tag }}/'>
+            
+          </div>
+  
+          <a href='#'  class='btn btn-info' id='loadmore'>
+          <img src="{% static 'assets/img/load.png' %}">&nbsp;Load More Tweets</a>
+
+        </div>
+    </div>
+
+{% endblock content %}

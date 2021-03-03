@@ -1,0 +1,126 @@
+
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script>
+$(document).ready(function(){
+  loadTweetContainer("tweet-container", {{ object.id }})
+});
+</script>
+{% endblock script %}
+
+{% block content %}
+<div class='row'>
+    <div class='col-sm-3 col-xs-12 card' style="width: 20rem;">
+    <div class="card card-profile" data-background-color="yellow">
+                <div class="card-avatar">
+                {% if  object.user.is_superuser %}
+                <img class="img img-raised" src="{% static 'assets/img/' %}{{ object.user }}.png">
+                {% else %}
+                    <img class="img img-raised" width="255px" height="255px" style="opacity: 0.7;"src="{% static 'assets/img/' %}{{ object.user.username|slice:":1"|lower }}.png">
+                {% endif %}    
+                </div>
+
+                <div class="card-body">
+                  <center>
+                  {% if "H3M3N" in object.user.username  %}
+                  <h6 class="card-category">CEO &amp; CO-Founder</h6>
+                  {% endif %}
+                  {% if "SHUBHAM" in object.user.username  %}
+                  <h6 class="card-category">CO-Founder</h6>
+                  {% endif %}
+                  {% if "INDRA" in object.user.username  %}
+                  <h6 class="card-category">CO-Founder</h6>
+                  {% endif %}
+                  <h4 class="card-title text-capitalize">{{ object.user }}&nbsp;
+
+        {% if object.user.is_staff %}
+        <span><img src="{% static 'assets/img/verified.png' %}" width="25" height="25" rel="tooltip" title="Verified User"></span>
+        {% endif %}
+        {% if object.user.is_superuser %}
+        <span><img src="{% static 'assets/img/superuser.png' %}" width="35" height="35" rel="tooltip" title="Super User"></span>
+        {% endif %}
+        <h6><a href="/{{ object.user }}">@{{ object.user }}</a></h6>
+
+                  <p class="card-description">
+                    <h6><br><i class=""></i>&nbsp;Joined on&nbsp;{{ object.user.date_joined|date:"M d, Y" }}<br><br>
+                    {% if object.user.is_superuser %}
+                    <i class="fa fa-link"></i>&nbsp;<a href='http://hybridisk.96.lt' target="_blank">hybridisk.96.lt</a><br><br>
+                    {% endif %}
+                    </h6>
+                  </p>
+                  </center>
+                </div>
+              </div>
+    </div>
+    <div class='col-sm-9 col-xs-12'>
+        <div id='tweet-container'>
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}
+
+  
+
+
+
+
+
+
+
+<div class='row'>
+    <div class='col-lg-3 col-md-6 col-sm-3 col-xs-12' style='background-color:red;'>
+        {{ object.user }}   
+    </div>
+    <div class='col-md-6' >
+        {{ object.user }}   
+    </div>
+    <div class='col-xs-12' style='background-color:green;'>
+        {{ object.user }}   
+    </div>
+    <div class='col-xs-12' style='background-color:blue;'>
+        {{ object.user }}   
+    </div>
+</div>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<br/>
+<div class='row'>
+
+    
+      <div class='col-sm-1' style='background-color:red;'>
+        {{ object.user }}   
+    </div>
+    <div class='col-sm-1' style='background-color:yellow;'>
+        {{ object.user }}   
+    </div>
+    <div class='col-sm-1' style='background-color:green;'>
+        {{ object.user }}   
+    </div>
+
+    <div class='col-sm-1' style='background-color:blue;'>
+        {{ object.user }}   
+    </div>
+      <div class='col-sm-1' style='background-color:red;'>
+        {{ object.user }}   
+    </div>
+    <div class='col-sm-1' style='background-color:yellow;'>
+        {{ object.user }}   
+    </div>
+    <div class='col-sm-1' style='background-color:green;'>
+        {{ object.user }}   
+    </div>
+
+    <div class='col-sm-1' style='background-color:blue;'>
+        
+    </div>
+
+</div>
+
+

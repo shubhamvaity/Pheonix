@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block script %}
+<script>
+$(document).ready(function(){
+  loadTweetContainer("tweet-container")
+});
+</script>
+{% endblock script %}
+
+
+{% block content %}
+<div class='row'>
+    <div class='col-sm-3 col-xs-12'>
+    <div class="card card-profile" data-background-color="yellow">
+                <div class="card-avatar">
+                {% if  object.is_superuser %}
+                <img class="img img-raised"  src="{% static 'assets/img/' %}{{ object.username }}.png">
+                {% else %}
+                    <img class="img img-raised" width="255px" height="255px" style="opacity: 0.7;" src="{% static 'assets/img/' %}{{ object.username|slice:":1"|lower }}.png">
+                {% endif %}    
+                </div>
+
+                <div class="card-body">
+                  <center>
+                  {% if "H3M3N" in object.username  %}
+                  <h6 class="card-category">CEO &amp; CO-Founder</h6>
+                  {% endif %}
+                  {% if "SHUBHAM" in object.user.username  %}
+                  <h6 class="card-category">CO-Founder</h6>
+                  {% endif %}
+                  {% if "INDRA" in object.user.username  %}
+                  <h6 class="card-category">CO-Founder</h6>
+                  {% endif %}
+                  <h4 class="card-title text-capitalize">{{ object.username }}&nbsp;
+
+        {% if object.is_staff %}
+        <span><img src="{% static 'assets/img/verified.png' %}" width="25" height="25" rel="tooltip" title="Verified User"></span>
+        {% endif %}
+        {% if object.is_superuser %}
+        <span><img src="{% static 'assets/img/superuser.png' %}" width="35" height="35" rel="tooltip" title="Super User"></span>
+        {% endif %}
+        <h6><a href="{{ object.url }}">@{{ object.username }}</a></h6>
+
+                  <p class="card-description">
+                    <h6><br><i class=""></i>&nbsp;Joined on&nbsp;{{ object.date_joined|date:"M d, Y" }}<br><br>
+                    {% if object.is_superuser %}
+                    <i class="fa fa-link"></i>&nbsp;<a href='http://hybridisk.96.lt' target="_blank">hybridisk.96.lt</a><br><br>
+                    {% endif %}
+                    <i class="fa fa-envelope"></i>&nbsp;<a href="mailto:{{ object.email }}?Subject=PHEONIX">{{ object.email }}</a><br><br>
+                    <i class="fa fa-map-marker"></i>&nbsp;<a href='https://www.google.co.in/maps/search/India' target="_blank">India</a>
+                    </h6>
+                  </p>
+                  <hr/>
+        <p><h6>Followers: {{ object.followed_by.all.count }}</h6></p>
+        <p>
+            
+                    {% if following %}
+                    <a class='btn btn-danger' href='{{ object.profile.get_follow_url }}'>UNFOLLOW
+                    &nbsp;&nbsp;<i class='fa fa-bell-slash'></i></a>
+                    {% else %}
+                    <a class='btn btn-success' href='{{ object.profile.get_follow_url }}'>FOLLOW&nbsp;&nbsp;<i class='fa fa-bell'></i>
+                    </a>
+                    {% endif %}
+                
+        </p>
+                  </center>
+                </div>
+              </div>
+        
+         <hr/>
+         <div class="card card-profile" data-background-color="green"><p>
+         <center><h3><i class='fa fa-globe'></i>&nbsp;STATS</h3><hr/></center></p></div>
+        <div class="card card-profile" data-background-color="orange"><p>
+         <center>
+          <h4><i class='fa fa-wifi'></i>&nbsp;Following {{ object.profile.get_following.count }} people:</h4>
+
+             {% for user in object.profile.get_following %}
+             <a href='/{{ user.username }}'>{{ user.username }}</a><br/>
+             {% empty %}
+             <h4>Not following any users</h4>
+             {% endfor %}
+             </center>
+             </p>
+            </div>
+          <div class="card card-profile" data-background-color="black"><p>
+         <center>
+          <h4><i class="fa fa-child"></i>&nbsp;Followed By</h4>
+             {% for profile in object.followed_by.all %}
+             <a href='/{{ profile.user.username }}'>{{ profile.user.username }}</a><br/>
+             {% empty %}
+             <h5>Not followed by any users</h5>
+             {% endfor %}
+             </center>
+             </p>
+             </div>
+          
+
+
+    </div>
+    <div class='col-sm-9 col-xs-12'>
+         <div class="card" data-background-color="blue">
+                  <center>
+                  <h3 class="category-social">
+                    <i class="fa fa-bullhorn"></i>&nbsp;&nbsp;TWEETS
+                  </h3>  
+                </center>
+              </div>
+          <div id='tweet-container' data-url='/api/{{ object.username }}/tweet/'>
+            
+          </div>
+          <center>
+          
+          <a href='#' class='btn btn-info' id='loadmore'>
+          <img src="{% static 'assets/img/load.png' %}">&nbsp;Load More Tweets</a>
+          </center>
+          
+      
+        
+
+     </div>
+
+</div>
+
+{% endblock content %}
+
+  

@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% load static %}
+{% load recommended %}
+<style>
+#tweet-container {
+
+}
+</style>
+
+{% block script %}
+<script>
+$(document).ready(function(){
+  loadTweetContainer("tweet-container")
+});
+</script>
+{% endblock script %}
+
+
+
+{% block content %}
+
+    <div class='row'>
+
+        <div class='col-sm-3 col-xs-12 card' style="width: 20rem;">
+        <div class="card card-profile" data-background-color="yellow">
+                <div class="card-avatar">
+                {% if  request.user.is_superuser %}
+                <img class="img img-raised" src="{% static 'assets/img/' %}{{ request.user.username }}.png">
+                {% else %}
+                    <img class="img img-raised" width="255px" height="255px" style="opacity: 0.7;"src="{% static 'assets/img/' %}{{ request.user.username|slice:":1"|lower }}.png">
+                {% endif %}    
+                </div>
+
+                <div class="card-body">
+                  <center>
+                  {% if "H3M3N" in request.user.username  %}
+                  <h6 class="card-category">CEO &amp; CO-Founder</h6>
+                  {% endif %}
+                  {% if "SHUBHAM" in object.user.username  %}
+                  <h6 class="card-category">CO-Founder</h6>
+                  {% endif %}
+                  {% if "INDRA" in object.user.username  %}
+                  <h6 class="card-category">CO-Founder</h6>
+                  {% endif %}
+                  <h4 class="card-title text-capitalize">{{ request.user }}&nbsp;
+
+        {% if request.user.is_staff %}
+        <span><img src="{% static 'assets/img/verified.png' %}" width="25" height="25" rel="tooltip" title="Verified User"></span>
+        {% endif %}
+        {% if request.user.is_superuser %}
+        <span><img src="{% static 'assets/img/superuser.png' %}" width="35" height="35" rel="tooltip" title="Super User"></span>
+        {% endif %}
+        <h6><a href="{{ request.user.url }}">@{{ request.user }}</a></h6>
+
+                  <p class="card-description">
+                    <h6><br><i class=""></i>&nbsp;Joined on&nbsp;{{ request.user.date_joined|date:"M d, Y" }}<br><br>
+                    {% if request.user.is_superuser %}
+                    <i class="fa fa-link"></i>&nbsp;<a href='http://hybridisk.96.lt' target="_blank">hybridisk.96.lt</a><br><br>
+                    {% endif %}
+                    <i class="fa fa-envelope"></i>&nbsp;<a href="mailto:{{ request.user.email }}?Subject=PHEONIX">{{ request.user.email }}</a><br><br>
+                    <i class="fa fa-map-marker"></i>&nbsp;<a href='https://www.google.co.in/maps/search/India' target="_blank">India</a>
+                    </h6>
+                  </p>
+                  </center>
+                </div>
+              </div>
+            <hr/>
+         <br/>
+         <div class="card card-profile" data-background-color="orange">
+        <h5 class="card-category"><p class='lead'><b>Recommended Users</b></p></h5>
+        <h6>{% recommended request.user %}</h6>
+        </div>
+        </div>
+
+        <div class='col-sm-9 '>
+             {% if not request.GET.q %}
+                <div class=''>
+                    
+                    {% include "tweets/form.html" with form=create_form action_url=create_url btn_title='Tweet' form_class='tweet-form' %}
+
+                </div>
+                <hr/>
+            {% endif %}
+
+          <div id='tweet-container' data-url='/api/tweet/'>
+            
+          </div>
+          <center>
+          
+          <a href='#' class='btn btn-info' id='loadmore'>
+          <img src="{% static 'assets/img/load.png' %}">&nbsp;Load More Tweets</a>
+          </center>
+
+        </div>
+    </div>
+
+{% endblock content %}

@@ -1,0 +1,55 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg bg-danger fixed-top" >
+        <div class="container">
+            <div class="navbar-translate">
+                
+            <a class="navbar-brand btn btn-round btn-neutral btn-lg" href="{% url  'home' %}" rel="tooltip" title="A Modern Microblogging Platform!." data-placement="bottom" target="_blank">
+                    <img src="{% static 'assets/img/bird.png' %}" width="170" height="30">
+                </a>
+           
+                <button class="navbar-toggler navbar-toggler" type="button" data-toggle="collapse" data-target="#navigation" aria-controls="navigation-index" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-bar bar1"></span>
+                    <span class="navbar-toggler-bar bar2"></span>
+                    <span class="navbar-toggler-bar bar3"></span>
+                </button>
+            </div>
+            <div class="collapse navbar-collapse justify-content-end" id="navigation" data-nav-image="{% static 'assets/img/blurred-image-1.jpg' %}">
+                {% if request.user.is_authenticated %}
+                <ul class="navbar-nav">
+                {% include "tweets/search_form.html" %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ request.user.profile.get_absolute_url }}" rel="tooltip" title="View your profile!">
+                            <i class="fa fa-cog"></i>
+                            <p>PROFILE</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}" rel="tooltip" title="Logging Out? See you later.. ">
+                            <i class="fa fa-sign-out"></i>
+                            <p>LOGOUT</p>
+                        </a>
+                    </li>
+                </ul>
+                {% else %}
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" rel="tooltip" title="Can't wait to get back ! Can You ?" data-placement="bottom" href="{% url 'login' %}">
+                            <i class="fa fa-sign-in"></i>
+                            LOGIN
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" rel="tooltip" title="Be a member of this microblog." data-placement="bottom" href="{% url 'register' %}">
+                            <i class="fa fa-database"></i>
+                           REGISTER
+                        </a>
+
+                    </li>
+                    
+                </ul>
+                {% endif %}
+                
+            </div>
+        </div>
+    </nav>
+    <!-- End Navbar -->

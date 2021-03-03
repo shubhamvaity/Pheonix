@@ -1,0 +1,453 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="apple-touch-icon" sizes="76x76" href="{% static 'assets/img/apple-icon.png' %}">
+    <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png' %}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <title>{% block title %}PHEONIX{% endblock title %}</title>
+    <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700,200" rel="stylesheet" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+    <link href="{% static 'assets/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <!-- <link href="{% static 'assets/css/now-ui-kit.css' %}" rel="stylesheet" /> -->
+    <link href="{% static 'assets/css/now-ui-kit.css'%}" rel="stylesheet" />
+
+    <link href="{% static 'assets/css/demo.css' %}" rel="stylesheet" />
+     
+  
+</head>
+
+<body class="index-page sidebar-collapse container" style="background: #EFEFEF;">
+    {% include "navbar.html" %}
+    <!-- Navbar -->
+    
+    <!-- <div class="wrapper"> --><br><br><br>
+<div>
+<br>
+      {% block content %}
+      {% endblock content %}          
+</div>         
+        <footer class="footer" data-background-color="black">
+            <div class="container">
+                <nav>
+                    <ul>
+                        <li>
+                            <a href="/about-us/">
+                                About Us
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="copyright">
+                    &copy;
+                    <script>
+                        document.write(new Date().getFullYear())
+                    </script> Designed by TEAM PHEONIX
+                </div>
+            </div>
+        </footer>
+    {% include "reply-modal.html" %}  
+<!-- </div>
+</div>
+ -->
+ <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script>
+    function getParameterByName(name, url) {
+    if (!url) {
+      url = window.location.href;
+    }
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
+
+function loadTweetContainer(tweetContainerID, fetchOneId){
+  var query = getParameterByName('q')
+  var tweetList = [];
+  var nextTweetUrl;
+  
+  var tweetContainer;
+  if (tweetContainerID){
+    tweetContainer = $("#" + tweetContainerID)
+  } else {
+    tweetContainer = $("#tweet-container")
+  }
+
+  var initialURL = tweetContainer.attr("data-url") || "/api/tweet/";
+  // console.log(initialURL)
+
+
+  $(document.body).on("click", ".tweet-like", function(e){
+      e.preventDefault()
+      var this_ = $(this)
+      var tweetId = this_.attr("data-id")
+      var likedUrl = '/api/tweet/' + tweetId + "/like/"
+      // this_.text("Liked")
+      $.ajax({
+        method:"GET",
+        url: likedUrl,
+        success: function(data){
+          if (data.liked){
+            this_.text("Liked")
+          } else {
+            this_.text("Unliked")
+          }
+        },
+        error: function(data){
+          console.log("error")
+          console.log(data)
+        }
+
+      })
+  })
+
+  $(document.body).on("click", ".tweet-reply", function(e){
+
+    e.preventDefault()
+    var this_ = $(this)
+    var parentId = this_.attr("data-id")
+    var username = this_.attr("data-user")
+    var content = this_.parent().parent().find(".content").text()
+    $("#replyModal").modal({})
+    $("#replyModal textarea").after("<input type='hidden' value='" + parentId + "' name='parent_id' />")
+    $("#replyModal textarea").after("<input type='hidden' value='" + true + "' name='reply' />")
+    $("#replyModal textarea").val("@" + username + " ")
+    $("#replyModal #replyModalLabel").text("Reply to " + content)
+    $("#replyModal").on("shown.bs.modal", function(){
+      $('textarea').focus()
+    })
+  })
+
+
+
+  $(document.body).on("click", ".retweetBtn", function(e){
+
+    e.preventDefault()
+    console.log("clicked")
+    var url = "/api" + $(this).attr("href")
+
+    $.ajax({
+      method: "GET",
+      url: url,
+      success: function (data) {
+        console.log(data)
+        // if username is in the API path... let's ignore 
+        if (initialURL == "/api/tweet/") {
+          attachTweet(data, true, true)
+          updateHashLinks()
+        }
+        
+      },
+      error: function(data){
+        console.log("error")
+        console.log(data)
+      }
+    })
+  })
+  function updateHashLinks(){
+    $(".content").each(function(data){
+        var hashtagRegex = /(^|\s)#([\w\d-]+)/g
+        var usernameRegex = /(^|\s)@([\w\d-]+)/g
+        var locationRegex = /(^|\s)`([\w\d-]+)/g
+        var currentHtml = $(this).html()
+        var newText;
+        newText = currentHtml.replace(hashtagRegex, "$1<a class='tag badge badge-danger' href='/tags/$2/'>#$2</a>")
+        newText = newText.replace(usernameRegex, "$1 <a class='tag badge badge-info' href='/$2/'>@$2</a>")
+        newText = newText.replace(locationRegex, "$1 <a class='tag badge badge-success' href='https://www.google.co.in/maps/place/$2/'><i class='fa fa-map-marker'></i>&nbsp;&nbsp;$2</a>")
+        $(this).html(newText)
+    })
+  }
+
+
+  function formatTweet(tweetValue) {
+      var admin ='';
+      var verified ='';
+      var timeSince = tweetValue.timesince;
+      var preContent;
+      var container;
+      var tweetContent;
+      var isReply = tweetValue.reply;
+      var replyId = tweetValue.id;
+      var dp = "{%static 'assets/img/' %}"+tweetValue.dp;
+      var dp_embed = "<img src='"+dp+"' width='50' height='50' class='img img-raised rounded'>&nbsp;"; 
+      if (tweetValue.parent) {
+        replyId = tweetValue.parent.id
+      }
+
+      var openingContainerDiv = "<div class=\"media blockquote-info blockquote\">"
+      if (tweetValue.id == fetchOneId) {
+        openingContainerDiv = "<div class=\"media media-focus\">"
+        setTimeout(function(){
+          $('.media-focus').css("background-color", '#fff')
+        }, 2000)
+      }
+
+      if (tweetValue.parent && !isReply) {
+        // there is a retwet
+        rt_by_user = tweetValue.user.username;
+        tsince = tweetValue.timesince;
+        tweetValue = tweetValue.parent;
+        timeSince = tweetValue.timesince;
+        dp = "{%static 'assets/img/' %}"+tweetValue.dp;
+        dp_embed = "<img src='"+dp+"' width='50' height='50' class='img img-raised rounded'>&nbsp;";
+         preContent = "<span class='grey-color'><i class='fa fa-retweet'></i>&nbsp;Retweeted by "+rt_by_user +" around " + tsince + "</span><br/>"
+      } else if (tweetValue.parent && isReply) {
+         preContent = "<span class='grey-color'><i class='fa fa-reply'></i>&nbsp;Replied to <a href='"+tweetValue.parent.user.url+"'>@" + tweetValue.parent.user.username +  "</a></span><br/>"
+      }
+
+      var verb = "<i class='fa fa-thumbs-up'></i>Like"
+      if (tweetValue.did_like){
+          verb = "<i class='fa fa-thumbs-down'></i>Unlike"
+      }
+
+      
+      if(tweetValue.user.is_staff == true)
+      { verified = "<span><img src='{% static 'assets/img/verified.png' %}' width='17' height='17' rel='tooltip' title='Verified User'></span>"
+      }
+
+      if(tweetValue.user.is_superuser == true)
+      { admin = "<span><img src='{% static 'assets/img/superuser.png' %}' width='25' height='25' rel='tooltip' title='Super User'></span>"
+      }
+      tweetContent = "<span class='content photo-container'>"+dp_embed +  tweetValue.content + "</span><br/> via <a href='" + tweetValue.user.url + "'>" + tweetValue.user.username + "</a>&nbsp;"+ verified+"&nbsp;"+admin+"&nbsp;| " + timeSince + " | " + "<a href='/tweet/" + tweetValue.id + "'><i class='fa fa-expand'></i>View</a> | " + "<a class='retweetBtn' href='/tweet/" + tweetValue.id + "/retweet/'><i class='fa fa-retweet'></i>&nbsp;Retweet</a>" + " | <a href='#' class='tweet-like' data-id='" + tweetValue.id + "''>" + verb + " (" + tweetValue.likes + ")</a>" + " | <a href='#' class='tweet-reply' data-user='" + tweetValue.user.username + "' data-id='" + replyId + "''><i class='fa fa-reply'></i>Reply</a>"
+
+      if (preContent){
+           container= openingContainerDiv + "<div class=\"media-body\">" + preContent + tweetContent + "</div></div><hr/>"
+      } else {
+           container = openingContainerDiv + "<div class=\"media-body\">" + tweetContent + "</div></div><hr/>"
+      }
+       
+       return container
+  }
+  function attachTweet(tweetValue, prepend, retweet){
+
+      tweetFormattedHtml = formatTweet(tweetValue)
+
+      if (prepend==true){
+        tweetContainer.prepend(tweetFormattedHtml)
+      } else {
+        tweetContainer.append(tweetFormattedHtml)
+     }
+  }
+
+  function parseTweets(){
+    if (tweetList == 0) {
+      tweetContainer.text("No tweets currently found.")
+    } else {
+      // tweets exist, parse & display them
+     $.each(tweetList, function(key, value){
+          var tweetKey = key;
+          if (value.parent) {
+            attachTweet(value, false, true)
+          } else {
+            attachTweet(value)
+          }
+          
+      })
+    }
+  }
+
+  function fetchTweets(url){
+    console.log('fetching')
+    var fecthUrl;
+    if (!url) {
+      fecthUrl = initialURL
+    } else {
+      fecthUrl = url
+    }
+    $.ajax({
+      url: fecthUrl,
+      data: {
+        "q": query
+      },
+      method: "GET",
+      success: function(data){
+        // console.log(data)
+        tweetList = data.results
+        if (data.next){
+          nextTweetUrl = data.next
+        } else {
+          $("#loadmore").css("display", "none")
+        }
+        parseTweets()
+        updateHashLinks()
+       
+      },
+      error: function(data){
+        console.log("error")
+        console.log(data)
+      }
+    })
+  }
+
+  function fetchSingle(fetchOneId){
+    var fecthDetailUrl = '/api/tweet/' + fetchOneId + '/'
+    $.ajax({
+      url: fecthDetailUrl,
+      method: "GET",
+      success: function(data){
+         console.log(data)
+        tweetList = data.results
+        // if (data.next){
+        //   nextTweetUrl = data.next
+        // } else {
+        //   $("#loadmore").css("display", "none")
+        // }
+        parseTweets()
+        updateHashLinks()
+       
+      },
+      error: function(data){
+        console.log("error")
+        console.log(data)
+      }
+    })
+  }
+
+
+  if (fetchOneId){
+    fetchSingle(fetchOneId)
+  } else {
+    fetchTweets()
+  }
+  
+
+
+  $("#loadmore").click(function(event){
+      event.preventDefault()
+      if (nextTweetUrl) {
+        fetchTweets(nextTweetUrl)
+      }
+      // load more items
+  })
+  
+  var charsStart = 140;
+  var charsCurrent = 0;
+
+  $(".tweet-form").append("<span class='tweetCharsLeft' style='margin-left: 20px'>" + charsStart + " left</span>")
+
+  $(".tweet-form textarea").keyup(function(event){
+      var tweetValue = $(this).val()
+      charsCurrent = charsStart - tweetValue.length
+      var spanChars = $(this).parent().parent().parent().find("span.tweetCharsLeft")
+      spanChars.text(charsCurrent)
+
+      if (charsCurrent > 0 ) {
+         // remove classes
+         spanChars.removeClass("grey-color")
+         spanChars.removeClass("red-color")
+      } else if (charsCurrent == 0) {
+         // add grey class
+         spanChars.removeClass("red-color")
+         spanChars.addClass("grey-color")
+      } else if (charsCurrent < 0) {
+          // add red class
+          spanChars.removeClass("grey-color")
+          spanChars.addClass("red-color")
+      }
+
+  })
+
+  $(".tweet-form").submit(function(event){
+      event.preventDefault()
+      var this_ = $(this)
+      var formData =  this_.serialize()
+      if (charsCurrent >= 0) {
+        $.ajax({
+          url: "/api/tweet/create/",
+          data: formData,
+          method: "POST",
+          success: function(data){
+            this_.find("input[type=text], textarea").val("")
+            attachTweet(data, true)
+            updateHashLinks()
+            $("#replyModal").modal("hide")
+           
+          },
+          error: function(data){
+            console.log("error")
+            console.log(data.statusText)
+            console.log(data.status)
+          }
+        })
+      }  else {
+        console.log("Cannot send, tweet too long.")
+    }
+
+
+
+      
+  })
+}
+
+    </script>
+    {% block script %}{% endblock script %}
+
+    <script>
+      $(document).ready(function(){
+        var typingTimer;
+        var doneInterval = 800; // in ms
+        var searchInput = $("#navbar-search-form input[type=text]")
+        var searchQuery;
+
+        searchInput.keyup(function(event){
+            searchQuery =  $(this).val()
+            clearTimeout(typingTimer)
+            typingTimer = setTimeout(doneSearchTyping, doneInterval)
+            
+        })
+
+         searchInput.keydown(function(event){
+            clearTimeout(typingTimer)  
+        })
+
+        function doneSearchTyping(){
+          if (searchQuery){
+            // do search
+            var url = '/search/?q=' + searchQuery
+            document.location.href = url;
+          }
+        }
+
+
+      })
+    </script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <!--   Core JS Files   -->
+<script src="{% static 'assets/js/core/jquery.3.2.1.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'assets/js/core/popper.min.js' %}" type="text/javascript"></script>
+<script src="{% static 'assets/js/core/bootstrap.min.js' %}" type="text/javascript"></script>
+<!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
+<script src="{% static 'assets/js/plugins/bootstrap-switch.js' %}"></script>
+<!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+<script src="{% static 'assets/js/plugins/nouislider.min.js' %}" type="text/javascript"></script>
+<!--  Plugin for the DatePicker, full documentation here: https://github.com/uxsolutions/bootstrap-datepicker -->
+<script src="{% static 'assets/js/plugins/bootstrap-datepicker.js' %}" type="text/javascript"></script>
+<!-- Control Center for Now Ui Kit: parallax effects, scripts for the example pages etc -->
+<script src="{% static 'assets/js/now-ui-kit.js' %}" type="text/javascript"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        // the body of this function is in assets/js/now-ui-kit.js
+        nowuiKit.initSliders();
+    });
+
+    function scrollToRegister() {
+
+        if ($('.section-register').length != 0) {
+            $("html, body").animate({
+                scrollTop: $('.section-register').offset().top
+            }, 1000);
+        }
+    }
+    </script>
+
+  </body>
+</html>
