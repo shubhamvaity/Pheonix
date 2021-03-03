@@ -46,5 +46,3 @@ We are open to `enhancements` & `bug-fixes` :smile:
 - [@shubhamvaity](https://github.com/shubhamvaity)
 - Indra Murari
 
--------------------------------------------
-# demo
